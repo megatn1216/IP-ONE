@@ -1,0 +1,125 @@
+.tableWrap{
+  margin-top: 10px;
+  border: 1px solid var(--color-table-line);
+  border-radius: var(--radius-10);
+  overflow: hidden;
+  background: white;
+  pointer-events: auto;
+}
+.tableWrap .table tr {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.tableScroll{
+  max-height: 520px;
+  overflow-y: auto;
+  overflow-x: scroll;              /* ✅ 항상 가로 스크롤 영역 생성 */
+  scrollbar-gutter: stable both-edges; /* ✅ 스크롤 공간 항상 확보 */
+}
+/* table.css - 선택 */
+.tableScroll::-webkit-scrollbar{
+  height: 12px;
+}
+.table{
+  width: max-content;  /* ✅ 내용(컬럼) 합친 폭만큼 넓어짐 */
+  min-width: 100%;     /* ✅ 컬럼이 적으면 컨테이너는 꽉 채움 */
+  border-collapse: collapse;
+  font-size: var(--fs-11);
+}
+
+.table thead th{
+  position: sticky;
+  top: 0;
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+  font-weight: 800;
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--color-table-line);
+  border-right: 1px solid var(--color-table-line);
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.table thead th.is-grey{
+  background: var(--color-header-grey);
+}
+
+.table thead th.is-sticky{
+  left: 0;
+  z-index: 4;
+}
+
+.table tbody td{
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--color-table-line);
+  border-right: 1px solid var(--color-table-line);
+  white-space: nowrap;
+  color: var(--color-text);
+  background: white;
+}
+
+.table tbody td.is-sticky{
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  /*background: white;*/
+}
+
+.table tbody tr:hover td{
+  background: var(--color-row-hover);
+}
+
+.table tbody tr.is-selected td{
+  background: var(--color-row-selected);
+}
+
+.table tbody tr.is-selected td.is-sticky{
+  background: var(--color-row-selected);
+}
+
+.table__empty{
+  padding: 36px 10px !important;
+  text-align: center;
+  color: var(--color-text-tertiary);
+}
+
+/* ✅ 인라인 추가 행 입력 컨트롤 */
+.table__inlineInput,
+.table__inlineSelect{
+  width: 100%;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid #cfcfcf;
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 12.5px;
+}
+
+.table__inlineSelect{
+  appearance: none;
+}
+
+.table td.is-requiredCell{
+  background: #fce9e9 !important;
+}
+
+.is-draftRow td{
+  vertical-align: middle;
+}
+
+
+/* ✅ 인라인 추가(draft) 행 전체 배경색 */
+.table tbody td.is-draftCell{
+  background: #ffffff;
+}
+
+/* 버튼 행(td 안에 tableInlineControls가 있는 경우) */
+.table tbody tr td:has(.tableInlineControls) {
+  border-right: none !important;   /* 🔴 내부 세로줄 제거 */
+}
+
+/* 혹시 colspan 사용 시 마지막 td도 안전하게 */
+.table tbody tr:has(.tableInlineControls) td {
+  border-right: none !important;
+}

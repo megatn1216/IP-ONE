@@ -1,0 +1,18 @@
+@import "./tokens.css";
+
+*{ box-sizing: border-box; }
+html, body, #root{ height: 100%; }
+
+body{
+  margin: 0;
+  background: var(--color-bg-app);
+  color: var(--color-text);
+  font-family: var(--font-family);
+}
+
+.container{
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 0 24px;
+}

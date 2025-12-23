@@ -1,0 +1,18 @@
+[
+  {
+    "loginId": "superadmin",
+    "password": "Ipone1234!!!!"
+  },
+  {
+    "loginId": "admin001",
+    "password": "admin001!"
+  },
+  {
+    "loginId": "badmin001",
+    "password": "badmin001!"
+  },
+  {
+    "loginId": "cadmin001",
+    "password": "cadmin001!"
+  }
+]

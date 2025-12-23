@@ -1,0 +1,7 @@
+[
+  {"id": "admin", "pw": "admin", "role": "SUPERADMIN"},
+  {"id": "gangnamhq1", "pw": "gangnamhq1", "role": "ADMIN"},
+  {"id": "gangnamnw1", "pw": "gangnamnw1", "role": "ADMIN"},
+  {"id": "gangnamac1", "pw": "gangnamac1", "role": "ADMIN"},
+  {"id": "10150407", "pw": "10150407", "role": "USER"}
+]

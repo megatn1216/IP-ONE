@@ -1,0 +1,50 @@
+:root{
+  --color-bg-app: #F6F7F9;
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F5F5F5;
+  --color-border: #E6E8EC;
+  --color-border-strong: #DADDE3;
+
+  --color-text: #111111;
+  --color-text-secondary: #5A616B;
+  --color-text-tertiary: #8B93A1;
+
+  --color-teal: #007F7F;
+  --color-teal-700: #006E6E;
+
+  --color-search: #404040;
+
+  --color-blue: #1FB7FF;
+  --color-blue-700: #129FE0;
+
+  --color-danger: #EC797E;
+  --color-gray-btn: #757575;
+  --color-search: #404040;
+
+  --color-row-hover: #F3F6FA;
+  --color-row-selected: #EAF7F7;
+
+  --color-table-line: #d9d9d9;
+  --color-header-grey: #ebebeb;
+
+  --font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+
+  --fs-11: 12px;
+  --fs-12: 13px;
+  --fs-13: 14px;
+  --fs-14: 15px;
+  --fs-16: 17px;
+  --fs-22: 22px;
+
+  --radius-8: 8px;
+  --radius-10: 10px;
+  --radius-12: 12px;
+  --radius-16: 16px;
+
+  --shadow-card: 0 2px 10px rgba(17, 24, 39, 0.06);
+  --shadow-subtle: 0 1px 3px rgba(17, 24, 39, 0.06);
+
+  /* 세 섹션 공통 내부 패딩 */
+  --section-pad-y: 10px;
+  --section-pad-x: 18px;
+}

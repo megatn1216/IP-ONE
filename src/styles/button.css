@@ -1,0 +1,63 @@
+.btn{
+  height: 29px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--radius-8);
+  font-size: var(--fs-11);
+  font-weight: 800;
+  letter-spacing: -0.1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: var(--shadow-subtle);
+}
+
+.btn:disabled{
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn__icon{
+  display: inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 12px;
+  margin-left: 2px;
+}
+
+.btn--add{
+  background: var(--color-blue);
+  color: white;
+}
+.btn--add:hover{ background: var(--color-blue-700); }
+
+.btn--delete{
+  background: var(--color-danger);
+  color: white;
+}
+
+.btn--edit{
+  background: var(--color-gray-btn);
+  color: white;
+}
+
+.btn--excel{
+  background: var(--color-teal);
+  color: white;
+}
+
+.btn--search{
+  background: var(--color-search);
+  color: white;
+}
+
+
+.btn--excel:hover{ background: var(--color-teal-700); }
+
+.btn--ghost{
+  background: white;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  box-shadow: none;
+}
