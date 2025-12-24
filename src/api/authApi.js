@@ -4,11 +4,6 @@ import httpClient from "./httpClient.js";
 /**
  * POST /api/auth/login
  * body: { loginId, password }
- *
- * 성공(HTTP 200): { accessToken, refreshToken, role, loginId } 또는
- *                 { return: { accessToken, refreshToken, role, loginId } }
- * 실패(HTTP 404): ID/PW 확인
- * 실패(HTTP 401): 인증 실패
  */
 export async function loginWithIdPassword({ loginId, password }) {
   try {
@@ -17,13 +12,10 @@ export async function loginWithIdPassword({ loginId, password }) {
       password,
     });
 
-    console.log("[authApi] loginWithIdPassword res:", res);
-
     const data = res.data;
-    // return 래핑이 있으면 우선 사용, 없으면 data 전체 사용
     const ret = data?.return || data || {};
 
-    const result = {
+    return {
       ok: true,
       accessToken: ret.accessToken,
       refreshToken: ret.refreshToken,
@@ -32,20 +24,50 @@ export async function loginWithIdPassword({ loginId, password }) {
         role: ret.role || "USER",
       },
     };
-
-    console.log("[authApi] loginWithIdPassword result:", result);
-    return result;
   } catch (err) {
     const status = err?.response?.status;
-    const result =
-      status === 404
+    return status === 404
         ? { ok: false, message: "ID/PW를 확인해주세요" }
         : status === 401
-        ? { ok: false, message: "인증을 실패하였습니다." }
-        : { ok: false, message: "로그인에 실패했습니다." };
+            ? { ok: false, message: "인증을 실패하였습니다." }
+            : { ok: false, message: "로그인에 실패했습니다." };
+  }
+}
 
-    console.log("[authApi] loginWithIdPassword error:", result, err);
-    return result;
+/**
+ * POST /api/auth/verifysecond
+ * header: Authorization: Bearer {token}
+ * body: { secondPassword }
+ */
+export async function verifySecondPassword({ token, secondPassword }) {
+  try {
+    const res = await httpClient.post(
+        "/api/auth/verifysecond",
+        { secondPassword },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ 변경 포인트
+          },
+        }
+    );
+
+    const data = res.data;
+    const ret = data?.return || data || {};
+
+    return {
+      ok: true,
+      accessToken: ret.accessToken,
+      refreshToken: ret.refreshToken,
+      user: {
+        loginId: ret.loginId || "",
+        role: ret.role || "USER",
+      },
+    };
+  } catch (err) {
+    const status = err?.response?.status;
+    return status === 401 || status === 403
+        ? { ok: false, message: "2차 인증을 실패하였습니다." }
+        : { ok: false, message: "2차 인증에 실패했습니다." };
   }
 }
 
@@ -60,16 +82,11 @@ export async function logoutWithTokens({ accessToken, refreshToken }) {
       refreshToken,
     });
 
-    const result = { ok: res.status === 200 };
-    console.log("[authApi] logoutWithTokens result:", result);
-    return result;
+    return { ok: res.status === 200 };
   } catch (err) {
     const status = err?.response?.status;
-    const result = status === 401
+    return status === 401
         ? { ok: false, message: "인증을 실패하였습니다." }
         : { ok: false, message: "로그아웃에 실패했습니다." };
-
-    console.log("[authApi] logoutWithTokens error:", result, err);
-    return result;
   }
 }
