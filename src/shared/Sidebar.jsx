@@ -57,10 +57,10 @@ export default function Sidebar() {
         <div className="sidebar__groupTitle">모니터링</div>
         <div className="sidebar__items">
           <NavLink
-            to="/monitoring"
-            className={({ isActive }) =>
-              "sidebar__item" + (isActive ? " is-active" : "")
-            }
+              to="/monitoring"
+              className={({ isActive }) =>
+                  `sidebar__item ${isActive ? "is-active" : ""} is-disabled`
+              }
           >
             <Icon>📈</Icon>
             <span>IP 자산 모니터링</span>

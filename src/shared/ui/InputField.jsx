@@ -1,6 +1,6 @@
 import "../../styles/fields.css";
 
-export default function InputField({ label, value, onChange, placeholder, icon, type = "text", autoComplete }){
+export default function InputField({ label, value, onChange, placeholder, icon, type = "text", autoComplete, onKeyDown }){
   return (
     <label className="field">
       <span className="field__label">{label}</span>
@@ -10,6 +10,7 @@ export default function InputField({ label, value, onChange, placeholder, icon, 
           type={type}
           value={value}
           onChange={(e)=>onChange?.(e.target.value)}
+          onKeyDown={onKeyDown}
           placeholder={placeholder}
           autoComplete={autoComplete}
         />

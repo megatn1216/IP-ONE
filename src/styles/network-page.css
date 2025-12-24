@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  padding-bottom: 30px; /* ✅ hScroll 높이(14) + 여유 */
 }
 
 /* 카드 양쪽 여백은 고정 */
@@ -12,6 +13,8 @@
   border-radius: 12px;
   padding: 20px 24px; /* ← 좌우 24px로 고정 */
   position: relative;
+  padding-bottom: 18px; /* 14px(트랙) + 여유 */
+
 }
 
 .networkPage__filters {
@@ -119,11 +122,14 @@
 
 /* 가로 스크롤 담당 컨테이너 */
 .networkPage__tableScroll {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: scroll;
-  overflow-y: hidden;
-  scrollbar-gutter: stable; /* ✅ 스크롤 영역 항상 확보 */
+  overflow-x: auto;
+  /* 크롬, 사파리, 오페라에서 스크롤바 숨김 */
+  &::-webkit-scrollbar {
+    display: none !important;
+  }
+  /* 파이어폭스, 엣지에서 스크롤바 숨김 */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 /* 내부 내용은 컬럼 합친 실제 너비만큼 */
@@ -190,8 +196,9 @@
 .networkPage__tableBody {
   margin-top: 4px;
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  flex-direction: column; /* ✅ 추가 */
+  align-items: stretch;   /* ✅ 변경 (기존 flex-start) */
+  gap: 0;                 /* ✅ 변경 (기존 8px) */
 }
 
 /* 저장/취소 버튼을 카드 바깥 왼쪽으로 이동 */
@@ -228,4 +235,67 @@
 /* 버튼 행의 셀 높이/정렬이 이상하면 아래도 추가 가능 */
 tr td:has(.tableInlineControls) {
   background: #fff;
+}
+
+/* ✅ 항상 보이는 하단 가로 스크롤 “도킹” (테이블 폭과 동일) */
+.networkPage__hScrollDock{
+  position: fixed;
+  left: 0;              /* ✅ 추가 */
+  right: 0;             /* ✅ 추가 */
+  bottom: 0;            /* ✅ 유지 */
+  bottom: env(safe-area-inset-bottom, 0px); /* ✅ 사파리/모바일에서 “바닥” 맞춤 */
+  z-index: 9999;
+
+  /* ✅ 떠보이는 여백 방지 */
+  margin: 0;
+  padding: 0;
+}
+
+/* 2. 강제로 만든 커스텀 스크롤바를 화면 맨 밑에 고정 */
+.networkPage__hScroll {
+  position: fixed;    /* 화면에 고정 */
+  bottom: 0;          /* 맨 아래 붙임 */
+  left: 0;
+  right: 0;
+  height: 14px;       /* 스크롤바 영역 높이 */
+  background: rgba(255, 255, 255, 0.9); /* 배경을 살짝 투명하게 해서 뒤가 비치게 함 */
+  border-top: 1px solid #e5e7eb;
+  z-index: 10000;     /* 다른 요소들보다 항상 위에 있도록 설정 */
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* 아이폰/최신 맥북의 하단 홈 바 영역 대응 (선택 사항) */
+.networkPage__hScroll {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  height: calc(14px + env(safe-area-inset-bottom, 0px));
+}
+
+
+
+/* spacer는 “스크롤 폭”만 담당 */
+.networkPage__hScrollSpacer{
+  height: 1px;              /* 내용은 안 보이게 */
+}
+
+/* ✅ 웹킷(크롬/사파리) 스크롤바 */
+.networkPage__hScroll::-webkit-scrollbar{
+  height: 12px;
+}
+.networkPage__hScroll::-webkit-scrollbar-track{
+  background: #f3f4f6;
+}
+.networkPage__hScroll::-webkit-scrollbar-thumb{
+  background: #c7cbd1;
+  border-radius: 999px;
+}
+.networkPage__hScroll::-webkit-scrollbar-thumb:hover{
+  background: #aeb4bd;
+}
+
+
+.sidebar__item.is-disabled {
+  pointer-events: none; /* 클릭 불가 */
+  opacity: 0.6;         /* 비활성화 표시 */
+  filter: grayscale(1); /* 회색조 처리 */
 }

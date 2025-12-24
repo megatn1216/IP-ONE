@@ -257,7 +257,7 @@ export default function NetworkStatusPage() {
   // 서버 조회용 상태
   const [filtersLoaded, setFiltersLoaded] = useState(false);
   const [page, setPage] = useState(1);
-  const [pagePerPage, setPagePerPage] = useState(20);
+  const [pagePerPage, setPagePerPage] = useState(50);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -319,6 +319,16 @@ export default function NetworkStatusPage() {
   const tableCardRef = useRef(null);
   const [inlineAddTop, setInlineAddTop] = useState(null);
 
+
+// ✅ 하단 고정 가로 스크롤 동기화용
+  const tableScrollRef = useRef(null);
+  const hScrollRef = useRef(null);
+  const syncingRef = useRef(false);
+
+  const [scrollSpacerWidth, setScrollSpacerWidth] = useState(1);
+  const [hScrollDock, setHScrollDock] = useState({ left: 0, width: 0, visible: false });
+  const [hScrollLayout, setHScrollLayout] = useState({ left: 0, width: 0 }); // 가로 위치/너비 상태 추가
+
   function openAlert(message, title = "안내") {
     setAlertTitle(title);
     setAlertMessage(message);
@@ -362,6 +372,8 @@ export default function NetworkStatusPage() {
         dbTypeOptions,
       ]
   );
+
+
 
   // ✅ 페이지 최초 진입 시 필터 옵션 조회
   useEffect(() => {
@@ -826,13 +838,13 @@ export default function NetworkStatusPage() {
       hostId: "",
       erpBarcode: "",
 
-      vaccineYn: defaultYn,
-      webshellYn: defaultYn,
-      udagentYn: defaultYn,
-      smpagentYn: defaultYn,
+      // vaccineYn: defaultYn,
+      // webshellYn: defaultYn,
+      // udagentYn: defaultYn,
+      // smpagentYn: defaultYn,
       privacyInfoYn: defaultYn,
       tacsYn: defaultYn,
-      accntMgmtYn: defaultYn,
+      // accntMgmtYn: defaultYn,
 
       officeNm: "",
       instLocation: "",
@@ -1037,6 +1049,7 @@ export default function NetworkStatusPage() {
     // 다운로드는 보통 전체가 필요하니 pagePerPage를 충분히 크게
     const payload = {
       filter,
+      sortType: String(sortKey || "수정일자"), // ✅ filter 밖으로 분리
       page: {
         page: 1,
         pagePerPage: 1000000,
@@ -1407,6 +1420,65 @@ export default function NetworkStatusPage() {
     mode,
   ]);
 
+
+  useEffect(() => {
+    const calc = () => {
+      const scrollEl = tableScrollRef.current;
+      if (!scrollEl) return;
+
+// ✅ 하단바는 “테이블 가로 스크롤 영역” 폭/위치에 맞춤
+      const rect = scrollEl.getBoundingClientRect();
+      setHScrollDock({
+        left: rect.left,
+        width: rect.width,
+        visible: true,
+      });
+
+      // 2) 스페이서는 "테이블 스크롤 컨테이너의 scrollWidth"로 맞춤 (✅ 끝까지 가게 핵심)
+      const contentW = scrollEl.scrollWidth || 1;
+      setScrollSpacerWidth(contentW);
+    };
+
+    // 렌더 직후에 안정적으로 계산
+    const raf1 = requestAnimationFrame(() => {
+      requestAnimationFrame(calc);
+    });
+
+    window.addEventListener("resize", calc);
+    return () => {
+      cancelAnimationFrame(raf1);
+      window.removeEventListener("resize", calc);
+    };
+  }, [displayRows]);
+
+
+  // ✅ 테이블 크기 및 스크롤 범위 동기화 로직
+  useEffect(() => {
+    const tableEl = tableScrollRef.current;
+    if (!tableEl) return;
+
+    // 테이블의 크기나 위치가 변할 때마다 실행될 함수
+    const updateLayout = () => {
+      const rect = tableEl.getBoundingClientRect();
+      setHScrollLayout({ left: rect.left, width: rect.width }); // 화면상 실제 위치와 너비
+      setScrollSpacerWidth(tableEl.scrollWidth); // 테이블 내부의 실제 전체 가로 길이
+    };
+
+    // 1. ResizeObserver로 테이블 크기 변화 감지 (컬럼 너비 변경 등 대응)
+    const ro = new ResizeObserver(updateLayout);
+    ro.observe(tableEl);
+
+    // 2. 초기 실행 및 윈도우 리사이즈 대응
+    updateLayout();
+    window.addEventListener("resize", updateLayout);
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", updateLayout);
+    };
+  }, [rows, mode]); // 데이터가 바뀌거나 편집 모드가 될 때 다시 계산
+
+
   /** ✅ draft 행 기준으로 저장/취소 버튼 세로 위치 계산 */
   useEffect(() => {
     if (!mode) return;
@@ -1477,6 +1549,11 @@ export default function NetworkStatusPage() {
                       value={keyword}
                       onChange={setKeyword}
                       className="keywordInput"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          runSearch({ resetPage: true });
+                        }
+                      }}
                   />
                   <Button variant="search" onClick={() => runSearch({ resetPage: true })}>
                     조회 🔍
@@ -1535,48 +1612,81 @@ export default function NetworkStatusPage() {
                         ref={fileRef}
                         type="file"
                         accept=".xlsx,.xls"
-                        style={{ display: "none" }}
+                        style={{display: "none"}}
                         onChange={(e) => handleFileSelected(e.target.files?.[0])}
                     />
                   </div>
                 }
             />
+          </div>
 
-            <div className="networkPage__tableBody">
-              <div className="networkPage__tableScroll">
-                <div className="networkPage__tableScrollInner">
-                  <DataTable
-                      columns={columns}
-                      rows={displayRows}
-                      rowKey="id"
-                      selectedId={selectedId}
-                      onSelect={(row) => {
-                        // 행 추가/수정 중에는 선택 안되게
-                        if (mode) return;
-                        onSelectRow(row);
-                      }}
-                  />
-                </div>
+          <div className="networkPage__tableBody">
+            <div
+                className="networkPage__tableScroll"
+                ref={tableScrollRef}
+                onScroll={(e) => {
+                  if (syncingRef.current) return;
+                  syncingRef.current = true;
+                  if (hScrollRef.current) {
+                    hScrollRef.current.scrollLeft = e.currentTarget.scrollLeft;
+                  }
+                  syncingRef.current = false;
+                }}
+            >
+              <div className="networkPage__tableScrollInner">
+                <DataTable
+                    columns={columns}
+                    rows={displayRows}
+                    rowKey="id"
+                    selectedId={selectedId}
+                    onSelect={(row) => {
+                      if (mode) return;
+                      onSelectRow(row);
+                    }}
+                />
               </div>
             </div>
 
-            <div className="networkPage__pagination">
-              <Button variant="ghost" onClick={goPrevPage} disabled={!canPrevPage}>
-                ◀ 이전
-              </Button>
-
-              <span className="networkPage__paginationInfo">
-              {page} / {totalPages} 페이지 (페이지당 {pagePerPage}건)
-            </span>
-
-              <Button variant="ghost" onClick={goNextPage} disabled={!canNextPage}>
-                다음 ▶
-              </Button>
+            {/* ✅ 항상 보이는 “전용 가로 스크롤바” */}
+            <div
+                className="networkPage__hScroll"
+                ref={hScrollRef}
+                style={{
+                  left: hScrollLayout.left,   // 테이블의 시작 위치와 맞춤
+                  width: hScrollLayout.width, // 테이블의 너비와 맞춤
+                }}
+                onScroll={(e) => {
+                  if (syncingRef.current) return;
+                  syncingRef.current = true;
+                  if (tableScrollRef.current) {
+                    tableScrollRef.current.scrollLeft = e.currentTarget.scrollLeft;
+                  }
+                  syncingRef.current = false;
+                }}
+            >
+              <div
+                  className="networkPage__hScrollSpacer"
+                  style={{width: `${scrollSpacerWidth}px`}} // 테이블의 실제 scrollWidth와 1:1 매칭
+              />
             </div>
+          </div>
+
+          <div className="networkPage__pagination">
+            <Button variant="ghost" onClick={goPrevPage} disabled={!canPrevPage}>
+            ◀ 이전
+            </Button>
+
+            <span className="networkPage__paginationInfo">
+    {page} / {totalPages} 페이지 (페이지당 {pagePerPage}건)
+  </span>
+
+            <Button variant="ghost" onClick={goNextPage} disabled={!canNextPage}>
+              다음 ▶
+            </Button>
           </div>
         </div>
 
-        <AlertPopup open={alertOpen} title={alertTitle} message={alertMessage} onClose={() => setAlertOpen(false)} />
+        <AlertPopup open={alertOpen} title={alertTitle} message={alertMessage} onClose={() => setAlertOpen(false)}/>
       </div>
   );
 }
